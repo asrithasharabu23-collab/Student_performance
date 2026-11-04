@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 440px;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px #ccd3e2;
+        }
+
+        h1 {
+            color: #2455c3;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 15px 0 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: 2px solid #2455c3;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            background: #2455c3;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #163f9d;
+        }
+
+        .message {
+            background: #ffe8e8;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #e8f7ed;
+            color: #13843d;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            color: #2455c3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Create Account</h1>
+
+        <p class="subtitle">
+            Register to use Student Performance Prediction
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}">
+
+            <label>Full Name</label>
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter your full name"
+                maxlength="100"
+                required
+            >
+
+            <label>Username</label>
+            <input
+                type="text"
+                name="username"
+                placeholder="Choose a username"
+                minlength="3"
+                maxlength="50"
+                required
+            >
+
+            <label>Email Address</label>
+            <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                maxlength="120"
+                required
+            >
+
+            <label>Password</label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Create a password"
+                minlength="8"
+                required
+            >
+
+            <label>Confirm Password</label>
+            <input
+                type="password"
+                name="confirm_password"
+                placeholder="Enter password again"
+                minlength="8"
+                required
+            >
+
+            <button type="submit">
+                Register
+            </button>
+
+        </form>
+
+        <div class="link">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login here</a>
+        </div>
+
+    </div>
+
+</body>
+</html>
