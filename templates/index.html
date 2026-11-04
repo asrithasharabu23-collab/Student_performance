@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Performance Prediction</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #222;
+        }
+
+        .header {
+            background: #2455c3;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header p {
+            margin-bottom: 0;
+        }
+
+        .history-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .history-link {
+            display: inline-block;
+            background: #13843d;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .history-link:hover {
+            background: #0d642d;
+        }
+
+        .pdf-link {
+            display: inline-block;
+            background: #2455c3;
+            color: white;
+            padding: 13px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .pdf-link:hover {
+            background: #163f9d;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 25px auto 35px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px #ccd3e2;
+        }
+
+        h2 {
+            color: #2455c3;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: 2px solid #2455c3;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            background: #2455c3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #163f9d;
+        }
+
+        .result {
+            margin-top: 30px;
+            background: #e8f7ed;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result h1 {
+            color: #13843d;
+        }
+
+        .insights {
+            margin-top: 20px;
+            background: #eaf2ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            border-left: 5px solid #2455c3;
+        }
+
+        .insights h3 {
+            color: #2455c3;
+            margin-top: 0;
+        }
+
+        .insights ul {
+            padding-left: 25px;
+            margin-bottom: 0;
+        }
+
+        .insights li {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .error {
+            background: #ffe8e8;
+            color: #b91c1c;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media(max-width: 600px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 15px;
+            }
+
+            .history-link {
+                display: block;
+                margin: 10px 15px;
+            }
+
+            .pdf-link {
+                display: block;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>Student Performance Prediction</h1>
+
+        <p>Machine Learning Based Academic Analysis</p>
+
+    </div>
+
+
+    <!-- HISTORY, DASHBOARD AND LOGOUT -->
+
+    <div class="history-section">
+
+        <a href="{{ url_for('history') }}" class="history-link">
+            View Prediction History
+        </a>
+
+        <a href="{{ url_for('dashboard') }}" class="history-link">
+            View Student Dashboard
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="history-link">
+            Logout
+        </a>
+
+    </div>
+
+
+    <div class="container">
+
+        <h2>Enter Student Details</h2>
+
+
+        <!-- PREDICTION FORM -->
+
+        <form method="POST">
+
+            <div class="form-grid">
+
+                <div>
+
+                    <label>Study Hours Per Day</label>
+
+                    <input
+                        type="number"
+                        name="study_hours"
+                        min="0"
+                        max="24"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Attendance Percentage</label>
+
+                    <input
+                        type="number"
+                        name="attendance"
+                        min="0"
+                        max="100"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Previous Exam Marks</label>
+
+                    <input
+                        type="number"
+                        name="previous_score"
+                        min="0"
+                        max="100"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Assignment Marks</label>
+
+                    <input
+                        type="number"
+                        name="assignment_score"
+                        min="0"
+                        max="100"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Sleep Hours</label>
+
+                    <input
+                        type="number"
+                        name="sleep_hours"
+                        min="0"
+                        max="24"
+                        step="any"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button type="submit">
+                Predict Performance
+            </button>
+
+        </form>
+
+
+        <!-- PREDICTION RESULT -->
+
+        {% if prediction is not none %}
+
+        <div class="result">
+
+            <h2>Prediction Result</h2>
+
+            <h1>{{ prediction }} / 100</h1>
+
+            <h3>{{ category }}</h3>
+
+            <p>{{ suggestion }}</p>
+
+            <p>
+                This is an estimated score,
+                not a guaranteed exam result.
+            </p>
+
+
+            <!-- DOWNLOAD PDF REPORT -->
+
+            {% if latest_prediction_id %}
+
+            <a
+                href="{{ url_for('download_report', prediction_id=latest_prediction_id) }}"
+                class="pdf-link"
+            >
+                Download PDF Report
+            </a>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- STUDENT PERFORMANCE INSIGHTS -->
+
+        {% if insights %}
+
+        <div class="insights">
+
+            <h3>Student Performance Insights</h3>
+
+            <ul>
+
+                {% for item in insights %}
+
+                    <li>{{ item }}</li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+        {% endif %}
+
+        {% endif %}
+
+
+        <!-- ERROR MESSAGE -->
+
+        {% if error %}
+
+        <div class="error">
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <footer>
+
+        Student Performance Prediction System
+
+    </footer>
+
+</body>
+
+</html>
