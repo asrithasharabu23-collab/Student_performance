@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Performance Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #222;
+        }
+
+        .header {
+            background: #2455c3;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .navigation {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .navigation a {
+            display: inline-block;
+            text-decoration: none;
+            background: #2455c3;
+            color: white;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .navigation a:hover {
+            background: #163f9d;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #ccd3e2;
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .card h2 {
+            color: #2455c3;
+            font-size: 30px;
+            margin-bottom: 0;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #ccd3e2;
+            min-width: 0;
+        }
+
+        .chart-box h3 {
+            color: #2455c3;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .empty {
+            background: white;
+            text-align: center;
+            padding: 35px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+
+        @media(max-width: 850px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 500px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Student Performance Dashboard</h1>
+        <p>Academic Performance Analysis</p>
+    </div>
+
+    <div class="navigation">
+        <a href="/">Prediction Page</a>
+        <a href="/history">Prediction History</a>
+    </div>
+
+    <div class="container">
+
+        <h2>Dashboard Overview</h2>
+
+        <!-- Statistics Cards -->
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Predictions</h3>
+                <h2>{{ total_predictions }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Average Predicted Marks</h3>
+                <h2>{{ average_marks }}{% if average_marks != "N/A" %}/100{% endif %}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Highest Predicted Marks</h3>
+                <h2>{{ highest_marks }}{% if highest_marks != "N/A" %}/100{% endif %}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Average Study Hours</h3>
+                <h2>{{ average_study_hours }}{% if average_study_hours != "N/A" %} hrs{% endif %}</h2>
+            </div>
+
+        </div>
+
+        {% if total_predictions > 0 %}
+
+        <!-- Charts -->
+
+        <div class="charts">
+
+            <div class="chart-box">
+                <h3>Performance Category Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Study Hours vs Predicted Marks</h3>
+                <div class="chart-container">
+                    <canvas id="studyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Attendance vs Predicted Marks</h3>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Predicted Marks by Record</h3>
+                <div class="chart-container">
+                    <canvas id="marksChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+            <h2>No Prediction Data Available</h2>
+            <p>Make a prediction first to view dashboard statistics and charts.</p>
+            <a href="/">Go to Prediction Page</a>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <footer>
+        Student Performance Prediction System
+    </footer>
+
+    {% if total_predictions > 0 %}
+
+    <script>
+
+        // Data received from Flask
+
+        const categories = {{ category_labels | tojson }};
+        const categoryCounts = {{ category_counts | tojson }};
+
+        const studyHours = {{ study_hours_data | tojson }};
+        const predictedMarks = {{ predicted_marks_data | tojson }};
+
+        const attendance = {{ attendance_data | tojson }};
+        const recordLabels = {{ record_labels | tojson }};
+
+        // Chart 1: Performance Categories
+
+        new Chart(document.getElementById("categoryChart"), {
+            type: "pie",
+
+            data: {
+                labels: categories,
+
+                datasets: [{
+                    data: categoryCounts,
+                    backgroundColor: [
+                        "#13843d",
+                        "#2455c3",
+                        "#e6a23c",
+                        "#dc5555"
+                    ]
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+
+        // Chart 2: Study Hours vs Predicted Marks
+
+        new Chart(document.getElementById("studyChart"), {
+            type: "scatter",
+
+            data: {
+                datasets: [{
+                    label: "Predicted Marks",
+                    data: studyHours.map((hours, index) => ({
+                        x: hours,
+                        y: predictedMarks[index]
+                    })),
+                    backgroundColor: "#2455c3"
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Study Hours"
+                        }
+                    },
+
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Predicted Marks"
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+
+        // Chart 3: Attendance vs Predicted Marks
+
+        new Chart(document.getElementById("attendanceChart"), {
+            type: "scatter",
+
+            data: {
+                datasets: [{
+                    label: "Predicted Marks",
+                    data: attendance.map((value, index) => ({
+                        x: value,
+                        y: predictedMarks[index]
+                    })),
+                    backgroundColor: "#13843d"
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Attendance Percentage"
+                        },
+                        min: 0,
+                        max: 100
+                    },
+
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Predicted Marks"
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+
+        // Chart 4: Predicted Marks by Record
+
+        new Chart(document.getElementById("marksChart"), {
+            type: "bar",
+
+            data: {
+                labels: recordLabels,
+
+                datasets: [{
+                    label: "Predicted Marks",
+                    data: predictedMarks,
+                    backgroundColor: "#2455c3"
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: "Predicted Marks"
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+
+    {% endif %}
+
+</body>
+</html>
