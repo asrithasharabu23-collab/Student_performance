@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prediction History</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #222;
+        }
+
+        .header {
+            background: #2455c3;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px #ccd3e2;
+        }
+
+        h2 {
+            color: #2455c3;
+        }
+
+        .navigation {
+            margin-bottom: 20px;
+        }
+
+        .back {
+            display: inline-block;
+            background: #2455c3;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            margin: 5px 5px 5px 0;
+        }
+
+        .back:hover {
+            background: #163f9d;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .search-form input,
+        .search-form select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .search-form input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .search-form select {
+            min-width: 190px;
+        }
+
+        .search-button,
+        .clear-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 7px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .search-button {
+            background: #2455c3;
+        }
+
+        .clear-button {
+            background: #64748b;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1000px;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #2455c3;
+            color: white;
+            padding: 13px;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f1f5ff;
+        }
+
+        .category {
+            font-weight: bold;
+        }
+
+        .excellent {
+            color: #13843d;
+        }
+
+        .good {
+            color: #2455c3;
+        }
+
+        .average {
+            color: #c27803;
+        }
+
+        .needs-improvement {
+            color: #dc2626;
+        }
+
+        .delete-button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background: #991b1b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #666;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media(max-width: 600px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-form input,
+            .search-form select,
+            .search-button,
+            .clear-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Student Prediction History</h1>
+        <p>Search, filter and manage prediction records</p>
+    </div>
+
+    <div class="container">
+
+        <div class="navigation">
+            <a href="/" class="back">Back to Prediction</a>
+            <a href="/dashboard" class="back">Student Dashboard</a>
+        </div>
+
+        <h2>Prediction Records</h2>
+
+        <!-- Search and Filter Form -->
+
+        <form method="GET" action="/history" class="search-form">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search by record ID or category"
+                value="{{ search }}"
+            >
+
+            <select name="category">
+
+                <option value="">All Categories</option>
+
+                <option value="Excellent"
+                    {% if category_filter == "Excellent" %}selected{% endif %}>
+                    Excellent
+                </option>
+
+                <option value="Good"
+                    {% if category_filter == "Good" %}selected{% endif %}>
+                    Good
+                </option>
+
+                <option value="Average"
+                    {% if category_filter == "Average" %}selected{% endif %}>
+                    Average
+                </option>
+
+                <option value="Needs Improvement"
+                    {% if category_filter == "Needs Improvement" %}selected{% endif %}>
+                    Needs Improvement
+                </option>
+
+            </select>
+
+            <button type="submit" class="search-button">
+                Search / Filter
+            </button>
+
+            <a href="/history" class="clear-button">
+                Clear
+            </a>
+
+        </form>
+
+        <p>
+            Records found: <strong>{{ records|length }}</strong>
+        </p>
+
+        {% if records %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Study Hours</th>
+                        <th>Attendance</th>
+                        <th>Previous Marks</th>
+                        <th>Assignment Marks</th>
+                        <th>Sleep Hours</th>
+                        <th>Predicted Marks</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for record in records %}
+
+                    <tr>
+
+                        <td>{{ record.id }}</td>
+
+                        <td>{{ record.study_hours }}</td>
+
+                        <td>{{ record.attendance }}%</td>
+
+                        <td>{{ record.previous_score }}</td>
+
+                        <td>{{ record.assignment_score }}</td>
+
+                        <td>{{ record.sleep_hours }}</td>
+
+                        <td>{{ record.predicted_score }}</td>
+
+                        <td class="category
+                            {% if record.category == 'Excellent' %}excellent
+                            {% elif record.category == 'Good' %}good
+                            {% elif record.category == 'Average' %}average
+                            {% else %}needs-improvement
+                            {% endif %}">
+                            {{ record.category }}
+                        </td>
+
+                        <td>
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_prediction', prediction_id=record.id) }}"
+                                onsubmit="return confirm('Are you sure you want to delete this prediction record?');"
+                            >
+                                <button type="submit" class="delete-button">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+            <h3>No prediction records found.</h3>
+            <p>Try another search or category filter, or create a new prediction.</p>
+            <a href="/" class="back">Create Prediction</a>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <footer>
+        Student Performance Prediction System
+    </footer>
+
+</body>
+</html>
